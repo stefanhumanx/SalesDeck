@@ -1,0 +1,257 @@
+HumanX Deck Generator Backend - Files Manifest
+===============================================
+
+Created: 2026-02-25
+Location: /sessions/optimistic-peaceful-noether/humanx-deck-generator/backend/
+
+PYTHON SOURCE FILES
+===================
+
+1. main.py (324 lines)
+   Description: FastAPI web application with REST endpoints
+   Contents:
+     - FastAPI app initialization with CORS
+     - Middleware for request logging
+     - GET /health - Health check endpoint
+     - GET /api/products - Load product catalog
+     - POST /api/generate - Generate deck PDF
+     - Pydantic models: Product, SelectedProduct, GenerationRequest
+     - Startup/shutdown lifecycle events
+     - Request/response handling with error handling
+
+2. deck_generator.py (436 lines)
+   Description: Core business logic for deck generation
+   Contents:
+     - remove_slide(prs, index) - Remove slide via XML manipulation
+     - add_quote_slide(prs, sponsor_name, rep_name, products, insert_position)
+       Creates professional proposal slide with:
+       - Dark background (#1a1a2e)
+       - Gold accents (#f5a623)
+       - Sponsor info and product table
+       - Total investment and date
+     - convert_to_pdf(pptx_path, output_dir) - LibreOffice conversion
+     - generate_deck(template_path, selected_products, sponsor_info)
+       Main orchestrator function
+
+3. sheets_client.py (88 lines)
+   Description: Google Sheets integration for product catalog
+   Contents:
+     - get_products_from_sheet() - Load products from Google Sheets
+     - Graceful fallback if Sheets not configured
+     - Service account authentication
+     - Error logging without crashing
+
+CONFIGURATION & SETUP FILES
+============================
+
+4. requirements.txt (11 lines)
+   Dependencies:
+     - fastapi==0.111.0
+     - uvicorn[standard]==0.29.0
+     - python-pptx==0.6.23
+     - python-multipart==0.0.9
+     - httpx==0.27.0
+     - google-auth==2.29.0
+     - google-auth-httplib2==0.2.0
+     - google-api-python-client==2.128.0
+     - python-dotenv==1.0.1
+     - lxml==5.2.2
+     - Pillow==10.3.0
+
+5. .env.example
+   Template environment configuration with:
+     - TEMPLATE_PATH=./template.pptx
+     - PRODUCTS_CSV=./products_catalog.csv
+     - GOOGLE_SHEET_ID=
+     - GOOGLE_CREDENTIALS_JSON=
+     - HOST=0.0.0.0
+     - PORT=8000
+     - DEBUG=False
+
+6. products_catalog.csv (16 lines)
+   Example product catalog with:
+     - 14 example products
+     - Columns: slide_index, name, category, price
+     - Price ranges from $2,000 to $120,000
+     - Ready to use as CSV fallback
+
+7. .gitignore
+   Standard Python gitignore with:
+     - __pycache__/ and *.pyc
+     - Virtual environments (venv/, ENV/)
+     - IDE settings (.vscode/, .idea/)
+     - Environment files (.env)
+     - Temp files and logs
+
+DOCUMENTATION FILES
+===================
+
+8. README.md (280+ lines)
+   Comprehensive documentation including:
+     - Feature overview
+     - Project structure
+     - Setup instructions
+     - API endpoint reference
+     - Template structure
+     - Deck generation logic
+     - Google Sheets setup
+     - Logging and troubleshooting
+     - Dependency list
+
+9. SETUP.md (220+ lines)
+   Quick start guide with:
+     - Prerequisites
+     - 4-step installation
+     - API usage examples (curl)
+     - Interactive API docs link
+     - Docker setup
+     - Google Sheets integration (optional)
+     - Troubleshooting common issues
+     - Performance tips
+
+10. ARCHITECTURE.md (350+ lines)
+    Technical deep dive with:
+      - System architecture diagrams (ASCII)
+      - Module structure breakdown
+      - Data flow diagrams
+      - Error handling strategy
+      - File management approach
+      - Performance considerations
+      - Security considerations
+      - Scalability notes
+      - Testing examples
+
+DEPLOYMENT FILES
+================
+
+11. Dockerfile (20 lines)
+    Container definition with:
+      - Python 3.11 slim base image
+      - LibreOffice installation
+      - Dependency installation
+      - App code copying
+      - Port 8000 exposure
+      - Health check
+      - Uvicorn startup command
+
+12. docker-compose.yml (25 lines)
+    Docker Compose configuration with:
+      - Service definition
+      - Port mapping (8000:8000)
+      - Volume mounts for:
+        - template.pptx (read-only)
+        - products_catalog.csv
+        - .env
+        - google-credentials.json
+      - Environment variables
+      - Restart policy
+      - Health check
+
+MANIFEST FILE
+=============
+
+13. FILES_MANIFEST.txt (this file)
+    Complete listing of all created files
+
+STATISTICS
+==========
+
+Total Python Code:     848 lines
+  - main.py:          324 lines
+  - deck_generator.py: 436 lines
+  - sheets_client.py:  88 lines
+
+Total Documentation:   850+ lines
+  - README.md:        280+ lines
+  - SETUP.md:         220+ lines
+  - ARCHITECTURE.md:  350+ lines
+
+Configuration Files:    5
+Deployment Files:       2
+
+Total Files Created:   13
+
+DEPENDENCIES INSTALLED
+======================
+
+Base Requirements (from requirements.txt):
+  - fastapi 0.111.0
+  - uvicorn 0.29.0 (with standard extras)
+  - python-pptx 0.6.23
+  - python-multipart 0.0.9
+  - httpx 0.27.0
+  - google-auth 2.29.0
+  - google-auth-httplib2 0.2.0
+  - google-api-python-client 2.128.0
+  - python-dotenv 1.0.1
+  - lxml 5.2.2
+  - Pillow 10.3.0
+
+Transitive Dependencies (11+):
+  - pydantic, typing-extensions
+  - click, h11, httpcore, sniffio
+  - cryptography, rsa, pyasn1
+  - requests, urllib3, charset-normalizer, idna
+
+KEY FEATURES IMPLEMENTED
+=========================
+
+REST API:
+  - GET /health - Service health check
+  - GET /api/products - Product catalog (Google Sheets or CSV)
+  - POST /api/generate - Generate custom sponsorship deck
+  - Interactive API docs at /docs and /redoc
+
+Deck Generation:
+  - Load PPTX template with 132 slides
+  - Keep intro (slides 0-22) and closing (slides 129-131)
+  - Select products from slides 23-128
+  - Insert professional proposal slide
+  - Remove unselected product slides
+  - Convert to PDF using LibreOffice
+
+Product Management:
+  - Load from Google Sheets (primary)
+  - Fallback to CSV file
+  - Graceful error handling
+
+Proposal Slide:
+  - Professional dark theme (#1a1a2e)
+  - Gold accents (#f5a623)
+  - Sponsor info and rep name
+  - Product listing with prices
+  - Total investment calculation
+  - Generation date timestamp
+
+Infrastructure:
+  - CORS enabled for development
+  - Request logging with timing
+  - Pydantic request validation
+  - Error handling and recovery
+  - Temp file management and cleanup
+  - Docker containerization support
+
+QUICK START
+===========
+
+1. cd /sessions/optimistic-peaceful-noether/humanx-deck-generator/backend
+2. cp .env.example .env
+3. Place template.pptx in the directory
+4. python main.py
+5. Visit http://localhost:8000/docs for interactive API docs
+
+VERIFICATION
+============
+
+✓ All Python files compile successfully
+✓ All imports resolved correctly
+✓ FastAPI app initializes without errors
+✓ 7 endpoints configured and ready
+✓ Dependencies installed with --break-system-packages
+✓ Code follows PEP 8 style guidelines
+✓ Complete docstrings on all functions
+✓ Type hints on all function parameters
+✓ Error handling on all major operations
+✓ Logging statements throughout
+✓ No hardcoded secrets or credentials
+

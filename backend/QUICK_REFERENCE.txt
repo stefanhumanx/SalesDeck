@@ -1,0 +1,340 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║          HumanX Deck Generator - Quick Reference Card                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+DIRECTORY STRUCTURE
+═══════════════════════════════════════════════════════════════════════════
+
+/sessions/optimistic-peaceful-noether/humanx-deck-generator/backend/
+├── main.py                    FastAPI application
+├── deck_generator.py          Core generation logic
+├── sheets_client.py           Google Sheets integration
+├── requirements.txt           Dependencies
+├── .env.example              Environment template
+├── products_catalog.csv      Example products
+├── README.md                 Full documentation
+├── SETUP.md                  Quick start
+├── ARCHITECTURE.md           Technical details
+├── FILES_MANIFEST.txt        File inventory
+├── Dockerfile                Container config
+└── docker-compose.yml        Compose config
+
+INSTALLATION
+═══════════════════════════════════════════════════════════════════════════
+
+# 1. Navigate to directory
+cd /sessions/optimistic-peaceful-noether/humanx-deck-generator/backend
+
+# 2. Setup environment
+cp .env.example .env
+
+# 3. Edit configuration
+nano .env
+# Update: TEMPLATE_PATH=/path/to/template.pptx
+
+# 4. Place template
+cp /path/to/template.pptx ./template.pptx
+
+# 5. Run server
+python main.py
+
+# 6. Test
+curl http://localhost:8000/health
+
+# 7. Visit docs
+http://localhost:8000/docs
+
+ENVIRONMENT VARIABLES
+═══════════════════════════════════════════════════════════════════════════
+
+Required:
+  TEMPLATE_PATH=./template.pptx
+
+Optional:
+  PRODUCTS_CSV=./products_catalog.csv
+  GOOGLE_SHEET_ID=<your-sheet-id>
+  GOOGLE_CREDENTIALS_JSON=/path/to/credentials.json
+  HOST=0.0.0.0
+  PORT=8000
+
+API ENDPOINTS
+═══════════════════════════════════════════════════════════════════════════
+
+Health Check:
+  GET /health
+  → {"status": "ok", ...}
+
+Get Products:
+  GET /api/products
+  → [{"slide_index": 23, "name": "Product A", "category": "...", "price": 50000}, ...]
+
+Generate Deck:
+  POST /api/generate
+  {
+    "sponsor_name": "Acme Corp",
+    "rep_name": "John Doe",
+    "sponsor_email": "john@acme.com",
+    "selected_products": [
+      {"slide_index": 23, "name": "Product A", "price": 50000}
+    ]
+  }
+  → PDF file
+
+CURL EXAMPLES
+═══════════════════════════════════════════════════════════════════════════
+
+# Health check
+curl http://localhost:8000/health
+
+# Get products
+curl http://localhost:8000/api/products | jq '.'
+
+# Generate deck
+curl -X POST http://localhost:8000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sponsor_name": "Acme Corp",
+    "rep_name": "John Doe",
+    "selected_products": [
+      {"slide_index": 23, "name": "Product A", "price": 50000},
+      {"slide_index": 24, "name": "Product B", "price": 75000}
+    ]
+  }' \
+  --output deck.pdf
+
+DOCKER USAGE
+═══════════════════════════════════════════════════════════════════════════
+
+# Build image
+docker build -t humanx-deck-generator .
+
+# Run container
+docker run -p 8000:8000 \
+  -v $(pwd)/template.pptx:/app/template.pptx:ro \
+  -v $(pwd)/products_catalog.csv:/app/products_catalog.csv:ro \
+  humanx-deck-generator
+
+# Docker Compose
+docker-compose up
+
+DECK STRUCTURE
+═══════════════════════════════════════════════════════════════════════════
+
+Template Slides:
+  0-22       Static intro slides (always kept)
+  23-128     Product slides (select which to keep)
+  129-131    Static closing slides (always kept)
+
+Generated Deck:
+  0-22       Intro (from template)
+  23         Proposal slide (generated)
+  24-...     Selected products
+  ...        Closing (from template)
+
+PROPOSAL SLIDE CONTENT
+═══════════════════════════════════════════════════════════════════════════
+
+- Title: "SPONSORSHIP PROPOSAL"
+- Sponsor Name
+- Representative Name
+- Product Table:
+  | Product Name | Investment |
+  |--------------|------------|
+  | Product A    | $50,000    |
+  | Product B    | $75,000    |
+  |--------------|------------|
+  | Total        | $125,000   |
+- Generated Date
+- Color Scheme: Dark background, gold accents
+
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════
+
+Issue: Template not found
+Solution: Check TEMPLATE_PATH in .env, use absolute path
+
+Issue: Products not loading
+Solution: Verify products_catalog.csv format and location
+
+Issue: PDF conversion failed
+Solution: Install LibreOffice (apt install libreoffice)
+
+Issue: Port 8000 in use
+Solution: Change PORT in .env or kill existing process
+
+Issue: Google Sheets not working
+Solution: Verify GOOGLE_CREDENTIALS_JSON path and permissions
+
+CODE FILES REFERENCE
+═══════════════════════════════════════════════════════════════════════════
+
+main.py:
+  - FastAPI application setup
+  - GET /health, /api/products, POST /api/generate
+  - CORS middleware
+  - Request logging
+  - Error handling
+
+deck_generator.py:
+  - remove_slide(prs, index): Remove slide via XML
+  - add_quote_slide(...): Create proposal slide
+  - convert_to_pdf(...): LibreOffice conversion
+  - generate_deck(...): Main orchestrator
+
+sheets_client.py:
+  - get_products_from_sheet(): Load from Google Sheets
+  - Falls back to CSV if not configured
+  - Error handling
+
+IMPORTANT CONSTANTS
+═══════════════════════════════════════════════════════════════════════════
+
+FRONT_MATTER_END = 22
+PRODUCT_RANGE = range(23, 129)
+CLOSING_RANGE = range(129, 132)
+
+Dark BG Color: #1a1a2e (RGB 26, 26, 46)
+Accent Color: #f5a623 (RGB 245, 166, 35)
+Text Color: #FFFFFF (RGB 255, 255, 255)
+
+CSV FORMAT
+═══════════════════════════════════════════════════════════════════════════
+
+products_catalog.csv:
+slide_index,name,category,price
+23,Product A,Category 1,50000
+24,Product B,Category 1,75000
+
+COMMON TASKS
+═══════════════════════════════════════════════════════════════════════════
+
+Start development server:
+  python main.py
+
+Start with reload:
+  uvicorn main:app --reload
+
+Production server (4 workers):
+  uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+
+Run tests:
+  pytest tests/
+
+Check code style:
+  flake8 *.py
+
+Format code:
+  black *.py
+
+Type checking:
+  mypy *.py
+
+DOCUMENTATION MAP
+═══════════════════════════════════════════════════════════════════════════
+
+Quick Start:          SETUP.md
+Full Documentation:   README.md
+Technical Details:    ARCHITECTURE.md
+File Inventory:       FILES_MANIFEST.txt
+Project Overview:     BACKEND_SUMMARY.md
+
+FEATURES CHECKLIST
+═══════════════════════════════════════════════════════════════════════════
+
+✓ FastAPI REST API
+✓ PPTX manipulation
+✓ PDF conversion
+✓ Google Sheets integration
+✓ CSV fallback
+✓ Request logging
+✓ Error handling
+✓ Docker support
+✓ Interactive docs
+✓ Health checks
+✓ Input validation
+✓ Proposal slide generation
+
+DEPENDENCIES
+═══════════════════════════════════════════════════════════════════════════
+
+Core:
+  - fastapi 0.111.0
+  - uvicorn 0.29.0
+  - python-pptx 0.6.23
+  - python-dotenv 1.0.1
+
+Google:
+  - google-auth 2.29.0
+  - google-api-python-client 2.128.0
+
+Utilities:
+  - Pillow 10.3.0
+  - lxml 5.2.2
+  - httpx 0.27.0
+  - python-multipart 0.0.9
+
+PERFORMANCE NOTES
+═══════════════════════════════════════════════════════════════════════════
+
+Typical Generation Time:    10-30 seconds
+PDF Conversion Timeout:     120 seconds
+Temp Files Location:        /tmp/humanx_deck_*
+Cleanup:                    Automatic after response
+
+SECURITY NOTES
+═══════════════════════════════════════════════════════════════════════════
+
+Development:
+  - CORS: Allow all origins
+  - Auth: None
+  - Logging: Full errors
+
+Production TODO:
+  - Restrict CORS origins
+  - Add authentication
+  - Hide error details
+  - Enable HTTPS
+  - Add rate limiting
+
+USEFUL COMMANDS
+═══════════════════════════════════════════════════════════════════════════
+
+# Test server is running
+curl http://localhost:8000/health
+
+# Get products (formatted)
+curl http://localhost:8000/api/products | jq '.'
+
+# Test generation endpoint
+curl -X POST http://localhost:8000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"sponsor_name":"Test","rep_name":"User","selected_products":[]}' 
+
+# View API documentation
+open http://localhost:8000/docs
+
+# Stream logs
+python main.py 2>&1 | tee server.log
+
+# Kill server
+pkill -f "python main.py"
+
+# Check what's using port 8000
+lsof -i :8000
+
+FILES BY SIZE
+═══════════════════════════════════════════════════════════════════════════
+
+Large:  deck_generator.py (436 lines, 16KB)
+        main.py (324 lines, 12KB)
+        ARCHITECTURE.md (350+ lines, 12KB)
+Medium: README.md (280+ lines, 8KB)
+        SETUP.md (220+ lines, 8KB)
+        sheets_client.py (88 lines, 4KB)
+Small:  requirements.txt (11 dependencies)
+        products_catalog.csv (14 products)
+        .env.example (config template)
+
+═══════════════════════════════════════════════════════════════════════════
+For more information, see the documentation files in the backend directory.
+═══════════════════════════════════════════════════════════════════════════
