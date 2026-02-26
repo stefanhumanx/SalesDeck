@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import ProductCatalog from './components/ProductCatalog'
 import GeneratePanel from './components/GeneratePanel'
-const API_BASE = import.meta.env.VITE_API_URL || ''
+const API_BASE = 'https://salesdeck-production.up.railway.app'
 
 export default function App() {
   const [products, setProducts] = useState([])
