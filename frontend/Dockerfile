@@ -1,4 +1,4 @@
-# Stage 1: Build
+# Cache bust: v3
 FROM node:20-slim AS builder
 
 WORKDIR /app
