@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import ProductCatalog from './components/ProductCatalog'
 import GeneratePanel from './components/GeneratePanel'
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 export default function App() {
   const [products, setProducts] = useState([])
@@ -20,7 +21,7 @@ export default function App() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products')
+        const response = await fetch('${API_BASE}/api/products')
         if (!response.ok) throw new Error('Failed to fetch products')
         const data = await response.json()
         setProducts(data)
@@ -120,7 +121,7 @@ export default function App() {
         }))
       }
 
-      const response = await fetch('/api/generate', {
+      const response = await fetch('${API_BASE}/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
