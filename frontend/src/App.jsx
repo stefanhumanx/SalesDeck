@@ -21,7 +21,7 @@ export default function App() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('${API_BASE}/api/products')
+        const response = await fetch(`${API_BASE}/api/products`)
         if (!response.ok) throw new Error('Failed to fetch products')
         const data = await response.json()
         setProducts(data)
@@ -121,7 +121,7 @@ export default function App() {
         }))
       }
 
-      const response = await fetch('${API_BASE}/api/generate', {
+const response = await fetch(`${API_BASE}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
